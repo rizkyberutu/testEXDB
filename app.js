@@ -3,15 +3,24 @@ const cors = require("cors");
 const app = express();
 const port = 3000;
 
+// CORS Configuration
+app.use(
+  cors({
+    origin: "*",
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
+  })
+);
+
+// Handle preflight requests
+app.options("*", cors());
+
 app.use(express.json());
-app.use(cors());
 
 const pool = require("./db");
 
-app.listen(port, () => {
-  console.log(`Server berjalan di http://localhost:${port}`);
-});
-
+// GET all books with search
 app.get("/books", async (req, res) => {
   const { title, author, publisher } = req.query;
 
@@ -58,6 +67,7 @@ app.get("/books", async (req, res) => {
   }
 });
 
+// GET single book by ID
 app.get("/books/:id", async (req, res) => {
   const { id } = req.params;
 
@@ -81,8 +91,7 @@ app.get("/books/:id", async (req, res) => {
   }
 });
 
-app.use(express.json());
-
+// POST - Add new book
 app.post("/books", async (req, res) => {
   const { title, author, publish_date, publisher } = req.body;
 
@@ -111,6 +120,7 @@ app.post("/books", async (req, res) => {
   }
 });
 
+// PUT - Update book
 app.put("/books/:id", async (req, res) => {
   try {
     const { id } = req.params;
@@ -139,6 +149,7 @@ app.put("/books/:id", async (req, res) => {
   }
 });
 
+// DELETE - Delete book
 app.delete("/books/:id", async (req, res) => {
   const { id } = req.params;
 
@@ -161,3 +172,9 @@ app.delete("/books/:id", async (req, res) => {
     res.status(500).json({ error: true, message: "Server Error" });
   }
 });
+
+app.listen(port, () => {
+  console.log(`Server berjalan di http://localhost:${port}`);
+});
+
+module.exports = app;
